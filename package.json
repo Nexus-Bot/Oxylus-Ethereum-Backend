@@ -1,0 +1,26 @@
+{
+	"name": "bizfund-ethereum-backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/VectoTec/BizFund-Ethereum-Backend.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"fs-extra": "^10.0.0",
+		"ganache-cli": "^6.12.2",
+		"mocha": "^9.1.0",
+		"solc": "^0.8.7-fixed",
+		"web3": "^1.5.2"
+	},
+	"bugs": {
+		"url": "https://github.com/VectoTec/BizFund-Ethereum-Backend/issues"
+	},
+	"homepage": "https://github.com/VectoTec/BizFund-Ethereum-Backend#readme"
+}
