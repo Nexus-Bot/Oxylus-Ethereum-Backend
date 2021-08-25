@@ -37,7 +37,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -108,7 +109,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.7+commit.e28d00a7\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_projectIndex\",\"type\":\"uint256\"}],\"name\":\"ProjectCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_projectTitle\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_projectDesc\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_minContributionAmount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"_imgUrl\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_folderUrl\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"_isMap\",\"type\":\"bool\"},{\"internalType\":\"string\",\"name\":\"_postalAddress\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_latitude\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_longitude\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_placeName\",\"type\":\"string\"}],\"name\":\"deployProject\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"deployedProjects\",\"outputs\":[{\"internalType\":\"contract Project\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDeployedProjects\",\"outputs\":[{\"internalType\":\"contract Project[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/ProjectCreator.sol\":\"ProjectCreator\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Project.sol\":{\"keccak256\":\"0x3a4b1b871097b80c09940afdefcec5914bf12e2a969b4a560fa352cf8eb07a27\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://46ac5aebfbc2d5871e908a80eb9cf76dd7fe7c6c99ed38c533c50e376b81b8cf\",\"dweb:/ipfs/QmTNQmV3mAySu2JamSRrgzpwAxaUJfbwBbJ8Tuqzj3b5qf\"]},\"project:/contracts/ProjectCreator.sol\":{\"keccak256\":\"0x3ea044c1a22bc93a44a095555bae8eaa9815380dacb6a09df0f9bc482898e628\",\"license\":\"GPL-3.0\",\"urls\":[\"bzz-raw://ec007d46e0c0587c418b90b2b87d8d91d8ef1bacc9426e613f1316e7fc854a4b\",\"dweb:/ipfs/QmdHnu4wAysCJotfR4GUKGn3EEHLEBcWustL1kPP9dpEbZ\"]}},\"version\":1}",
@@ -9499,9 +9501,17 @@
     "name": "solc",
     "version": "0.8.7+commit.e28d00a7.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0x94f67D11d47504c8d9883eab4638c16D2B7B3E0e",
+      "transactionHash": "0x22aad094c1d392e696face83551057a6aa7a6fcc05438fddb36a196992f6c132"
+    }
+  },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-08-25T12:36:09.985Z",
+  "updatedAt": "2021-08-25T21:50:19.503Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},
