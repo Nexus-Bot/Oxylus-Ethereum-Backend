@@ -3,9 +3,9 @@ const solc = require("solc");
 const fs = require("fs-extra");
 
 // libraries folder
-const SafeMathSourceCode = fs.readFileSync(
-	"./contracts/libraries/SafeMath.sol"
-);
+// const SafeMathSourceCode = fs.readFileSync(
+// 	"./contracts/libraries/SafeMath.sol"
+// );
 
 // core folder
 const ProjectSourceCode = fs.readFileSync("./contracts/Project.sol");
@@ -43,8 +43,8 @@ function compileContract(Contract) {
 	};
 
 	function findImports(path) {
-		if (path === "libraries/SafeMath.sol")
-			return { contents: `${SafeMathSourceCode}` };
+		// if (path === "libraries/SafeMath.sol")
+		// 	return { contents: `${SafeMathSourceCode}` };
 		if (path === "Project.sol") return { contents: `${ProjectSourceCode}` };
 		else return { error: "File not found" };
 	}
@@ -63,4 +63,4 @@ function compileContract(Contract) {
 
 compileContract(["./", "contracts", "Project.sol"]);
 compileContract(["./", "contracts", "ProjectCreator.sol"]);
-compileContract(["./", "contracts", "libraries", "SafeMath.sol"]);
+// compileContract(["./", "contracts", "libraries", "SafeMath.sol"]);
