@@ -2,10 +2,11 @@
 pragma solidity >=0.4.16 < 0.9.0;
 
 // Importing OpenZeppelin's SafeMath Implementation
-import "./libraries/SafeMath.sol";
+// No longer needed after solidity 0.8.0
+// import "./libraries/SafeMath.sol";
 
 contract Project {
-    using SafeMath for uint256;
+    // using SafeMath for uint256;
     
     event Contributed(address _from, uint _value);
     event CreatedRequest(uint requestID);
@@ -104,12 +105,40 @@ contract Project {
         lng = _longitude;
         placeName = _placeName;
     }
+
+    // To create requests
+    function createRequests(
+        string memory _reqTitle,
+        string memory _reqDesc, 
+        uint256 _value, 
+        string memory _milestoneId, 
+        address payable _recipient, 
+        string memory _imgUrl,
+        string memory _filesUrl
+    ) public onlyCreator returns (uint requestID) {
+        requestID = numRequests++;
+        Request storage req = requests[requestID];
+        req.id = requestID;
+        req.title = _reqTitle;
+        req.desc = _reqDesc;
+        req.value = _value;
+        req.vendorAddress = _recipient;
+        req.milestoneId = _milestoneId;
+        req.imgUrl = _imgUrl;
+        req.filesUrl = _filesUrl;
+        req.isComplete = false;
+        req.approvalsCount = 0;
+        req.denialsCount = 0;
+        req.cancelled = false;
+        
+        emit CreatedRequest(requestID);
+    }
     
     // calc 0.05% fee
     function percentage(uint256 value, uint256 reqParts, uint256 totalParts) internal pure returns (uint256) {
         uint256 total = value;
-        total = total.mul(reqParts);
-        total = total.div(totalParts);
+        total *= (reqParts);
+        total /= (totalParts);
         return total;
     }
     
@@ -143,7 +172,7 @@ contract Project {
         require(!finished, "Project already finished successfully");
         finished = true;
         
-        emit ProjectFinished(totalPoolBalance.sub(currentBalance), "Project Finished Successfully");
+        emit ProjectFinished(totalPoolBalance - currentBalance, "Project Finished Successfully");
     }
     
     // Check how much fees is accumulated till now, can only be called by the devs
@@ -163,50 +192,22 @@ contract Project {
     function contribute(bool _isSignedIn) public payable {
         uint256 fee = percentage(msg.value, 5, 10000);
         uint256 amount = msg.value;
-        amount = amount.sub(fee);
-        currentBalance = currentBalance.add(amount);
-        totalPoolBalance = totalPoolBalance.add(amount);
-        fees = fees.add(fee);
+        amount -= fee;
+        currentBalance += (amount);
+        totalPoolBalance += (amount);
+        fees += (fee);
         
         if(msg.value >= minContribution) {
             if(_isSignedIn == true) {
                 approvers[msg.sender] = true;
-                approversCount.add(1);
+                approversCount++;
             }
-            contributions[msg.sender] = contributions[msg.sender].add(amount);
-            contributorsCount.add(1);
+            contributions[msg.sender] += (amount);
+            contributorsCount++;
             contributors[msg.sender] = true;
         }
         
         emit Contributed(msg.sender, msg.value);
-    }
-    
-    // To create requests
-    function createRequests(
-        string memory _reqTitle,
-        string memory _reqDesc, 
-        uint256 _value, 
-        string memory _milestoneId, 
-        address payable _recipient, 
-        string memory _imgUrl,
-        string memory _filesUrl
-    ) public onlyCreator returns (uint requestID) {
-        requestID = numRequests++;
-        Request storage req = requests[requestID];
-        req.id = requestID;
-        req.title = _reqTitle;
-        req.desc = _reqDesc;
-        req.value = _value;
-        req.vendorAddress = _recipient;
-        req.milestoneId = _milestoneId;
-        req.imgUrl = _imgUrl;
-        req.filesUrl = _filesUrl;
-        req.isComplete = false;
-        req.approvalsCount = 0;
-        req.denialsCount = 0;
-        req.cancelled = false;
-        
-        emit CreatedRequest(requestID);
     }
     
     // Approvers can call this function to approve a particular request
@@ -218,7 +219,7 @@ contract Project {
         require(!req.isComplete, "Request already completed and vendor is paid");
         require(!(req.votes[msg.sender] == 0), "You can vote only once");
         
-        req.approvalsCount = req.approvalsCount.add(1);
+        req.approvalsCount++;
         req.votes[msg.sender] = 1;
         
         emit ApprovedReq(msg.sender, requestID, req.approvalsCount);
@@ -233,7 +234,7 @@ contract Project {
         require(!req.isComplete, "Request already completed and vendor is paid");
         require(!(req.votes[msg.sender] == 0), "You can vote only once");
         
-        req.denialsCount = req.denialsCount.add(1);
+        req.denialsCount++;
         req.votes[msg.sender] = 2;
         
         emit DeniedReq(msg.sender, requestID, req.denialsCount);
@@ -254,10 +255,10 @@ contract Project {
         uint256 fee = percentage(req.value, 5, 10000);
         
         uint256 amount = req.value;
-        amount = amount.sub(fee);
-        currentBalance = currentBalance.sub(req.value);
+        amount -= (fee);
+        currentBalance -= (req.value);
         req.value = 0;
-        fees = fees.add(fee);
+        fees += (fee);
         req.isComplete = true;
         
         req.vendorAddress.transfer(amount);
@@ -273,8 +274,8 @@ contract Project {
         require(finished == true || cancelled == true, "You can only take refund after the project is finished on cancelled by the creator of the project");
         
         refund = contributions[msg.sender];
-        refund = refund.mul(currentBalance);
-        refund = refund.div(totalPoolBalance);
+        refund *= (currentBalance);
+        refund /= (totalPoolBalance);
         return refund;
     }
     
@@ -285,14 +286,14 @@ contract Project {
         require(contributions[msg.sender] > 0);
         
         uint256 amount = contributions[msg.sender];
-        uint256 refundAmount = amount.mul(currentBalance);
-        refundAmount = refundAmount.div(totalPoolBalance);
+        uint256 refundAmount = (amount * currentBalance);
+        refundAmount /= (totalPoolBalance);
         
         uint256 fee = percentage(refundAmount, 5, 10000);
         contributions[msg.sender] = 0;
-        currentBalance = currentBalance.sub(refundAmount);
-        fees = fees.add(fee);
-        refundAmount = refundAmount.sub(fee);
+        currentBalance -= (refundAmount);
+        fees += (fee);
+        refundAmount -= (fee);
         
         address payable refundAddress = payable(msg.sender);
         refundAddress.transfer(refundAmount);
