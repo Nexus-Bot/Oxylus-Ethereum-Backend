@@ -44,6 +44,6 @@ contract ProjectCreator {
     }
     
     function getDeployedProjects()public view returns(Project[] memory){
-        return  deployedProjects;
+        return deployedProjects;
     }
 }
