@@ -1,1 +1,4 @@
 node_modules
+secret.txt
+Addresses.txt
+truffle-config.js
