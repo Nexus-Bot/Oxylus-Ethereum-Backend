@@ -246,8 +246,9 @@ contract Project {
         Request storage req = requests[_requestID];
         
         require(!req.cancelled, "Request already cancelled by the creator of this Project");
-        require(req.approvalsCount > approversCount/2, "Requires approvals from at least more than half of total contributors");
         require(!req.isComplete, "Vendor is paid already for this request");
+        require(currentBalance >= req.value, "Balance in pool must be more than the requested amount");
+        require(req.approvalsCount > approversCount/2, "Requires approvals from at least more than half of total contributors");
         
         require(!locked, "Re-entrant call detected!");
         locked = true;
