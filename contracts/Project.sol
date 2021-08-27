@@ -1,5 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
+
 pragma solidity >=0.4.16 < 0.9.0;
+pragma abicoder v2;
 
 // Importing OpenZeppelin's SafeMath Implementation
 // No longer needed after solidity 0.8.0
@@ -33,21 +35,47 @@ contract Project {
         mapping (address => uint) votes;    // 1 for positive vote, 2 for negative vote
     }
     
+    struct BasicDetails {
+        address owner;
+        string title;
+        string description;
+        string imageUrl;
+        string folderUrl;
+        uint256 minContribution;
+        bool isMap;
+        string postalAddress;
+        string lat;
+        string lng;
+        string placeName;
+    }
+    
+    BasicDetails basic;
+    
+    struct RequestDetails {
+        uint id;
+        string title;
+        string desc;
+        string milestoneId;
+        uint256 value;
+        address payable vendorAddress;
+        bool isComplete;
+        uint approvalsCount;
+        uint denialsCount;
+        string imgUrl;
+        string filesUrl;
+        bool cancelled;
+    }
+    
+    
     // creator is the Project Creator
     address public creator;
-    
-    string public title;
-    string public description;
-    uint256 public minContribution;
     uint256 public currentBalance = 0;
     uint256 public totalPoolBalance = 0;
     uint256 fees = 0;
-    string public imageUrl;
-    string public folderUrl;
-    uint approversCount = 0;
-    uint contributorsCount = 0;
-    bool cancelled = false;
-    bool finished = false;
+    uint public approversCount = 0;
+    uint public contributorsCount = 0;
+    bool public cancelled = false;
+    bool public finished = false;
     
     // only signed in accounts
     mapping(address => bool) public approvers;
@@ -55,13 +83,8 @@ contract Project {
     mapping(uint => Request) public requests;
     
     // Location and Place details
-    bool isMap;
-    string postalAddress;
-    string lat;
-    string lng;
-    string placeName;
     
-    address devs = 0x087F5052fBcD7C02DD45fb9907C57F1EccC2bE25;
+    address public devs = 0x087F5052fBcD7C02DD45fb9907C57F1EccC2bE25;
     address payable devAddress = payable(devs);
     
     // all contributors
@@ -94,16 +117,82 @@ contract Project {
         address _creator
     ) {
         creator = _creator;
-        title = _projectTitle;
-        description = _projectDesc;
-        imageUrl = _imgUrl;
-        folderUrl = _folderUrl;
-        minContribution = _minContributionAmount;
-        isMap = _isMap;
-        postalAddress = _postalAddress;
-        lat = _latitude;
-        lng = _longitude;
-        placeName = _placeName;
+        basic.owner = creator;
+        basic.title = _projectTitle;
+        basic.description = _projectDesc;
+        basic.imageUrl = _imgUrl;
+        basic.folderUrl = _folderUrl;
+        basic.minContribution = _minContributionAmount;
+        basic.isMap = _isMap;
+        basic.postalAddress = _postalAddress;
+        basic.lat = _latitude;
+        basic.lng = _longitude;
+        basic.placeName = _placeName;
+    }
+
+    function getLiveDetails() public view returns(
+        uint ,
+        uint ,
+        uint ,uint,
+        bool,bool
+    ) {
+        uint _currentBalance = currentBalance;
+        uint _totalPoolBalance = totalPoolBalance;
+        uint _approversCount = approversCount;
+        uint _contributorsCount = contributorsCount;
+        bool _cancelled = cancelled;
+        bool _finished = finished;
+        
+        return (
+            _currentBalance,
+            _totalPoolBalance,
+            _approversCount,
+            _contributorsCount,
+            _cancelled,
+            _finished
+            );
+    }
+            
+    function getBasicDetails () public view returns (BasicDetails memory) {
+        return basic;
+    }
+    
+    function getRequestByIndex(uint _requestID) public view returns (RequestDetails memory) {
+        Request storage req = requests[_requestID];
+        
+        RequestDetails memory reqDetail;
+        
+        reqDetail.id = req.id;
+        reqDetail.title = req.title;
+        reqDetail.desc = req.desc;
+        reqDetail.milestoneId = req.milestoneId;
+        reqDetail.value = req.value;
+        reqDetail.vendorAddress = req.vendorAddress;
+        reqDetail.isComplete = req.isComplete;
+        reqDetail.approvalsCount = req.approvalsCount;
+        reqDetail.denialsCount = req.denialsCount;
+        reqDetail.imgUrl = req.imgUrl;
+        reqDetail.filesUrl = req.filesUrl;
+        reqDetail.cancelled = req.cancelled;
+        
+        return reqDetail;
+    }
+    
+    function isVoted(address _user, uint _requestID) public view returns (bool) {
+        require(approvers[_user], "You must be a approver to vote");
+        Request storage req = requests[_requestID];
+        
+        if(req.votes[_user] == 0) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function getVoteCounts(uint _requestID) public view returns (uint, uint, uint) {
+        Request storage req = requests[_requestID];
+        
+        return (req.approvalsCount, req.denialsCount, approversCount);
     }
 
     // To create requests
@@ -197,7 +286,7 @@ contract Project {
         totalPoolBalance += (amount);
         fees += (fee);
         
-        if(msg.value >= minContribution) {
+        if(msg.value >= basic.minContribution) {
             if(_isSignedIn == true) {
                 approvers[msg.sender] = true;
                 approversCount++;
@@ -217,7 +306,7 @@ contract Project {
         require(approvers[msg.sender], "You need to be an approver to approve a request");
         require(!req.cancelled, "Request already cancelled by the creator of this Project");
         require(!req.isComplete, "Request already completed and vendor is paid");
-        require(!(req.votes[msg.sender] == 0), "You can vote only once");
+        require(!(isVoted(msg.sender, requestID)), "You can vote only once");
         
         req.approvalsCount++;
         req.votes[msg.sender] = 1;
@@ -232,7 +321,7 @@ contract Project {
         require(approvers[msg.sender], "You need to be an approver to approve a request");
         require(!req.cancelled, "Request already cancelled by the creator of this Project");
         require(!req.isComplete, "Request already completed and vendor is paid");
-        require(!(req.votes[msg.sender] == 0), "You can vote only once");
+        require(!(isVoted(msg.sender, requestID)), "You can vote only once");
         
         req.denialsCount++;
         req.votes[msg.sender] = 2;
